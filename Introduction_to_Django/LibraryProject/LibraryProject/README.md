@@ -1,1 +1,0 @@
-# ALX Django Learning Lab
