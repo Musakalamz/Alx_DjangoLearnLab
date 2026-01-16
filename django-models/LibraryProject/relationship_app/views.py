@@ -3,10 +3,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import DetailView
+from django.views.generic.detail import DetailView
 
 from .models import Book, Library, UserProfile
-from .models import Library
 
 
 def list_books(request):
