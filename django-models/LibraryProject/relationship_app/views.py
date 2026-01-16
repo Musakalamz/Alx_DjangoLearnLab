@@ -5,7 +5,8 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic.detail import DetailView
 
-from .models import Book, Library, UserProfile
+from .models import Library
+from .models import Book, UserProfile
 
 
 def list_books(request):
