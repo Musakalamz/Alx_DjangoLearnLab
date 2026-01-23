@@ -61,6 +61,29 @@ This command ensures that the groups exist and have the correct permissions assi
 - **Content Security Policy (CSP)**:
   - `CSP_DEFAULT_SRC = ("'self'",)`: Restricts content sources to the origin only, mitigating XSS attacks.
 
+### HTTPS and Secure Headers (New in Task 3)
+
+- **HTTPS Enforcement**:
+  - `SECURE_SSL_REDIRECT = True`: Redirects all non-HTTPS requests to HTTPS.
+  - `SECURE_HSTS_SECONDS = 31536000`: Sets HTTP Strict Transport Security (HSTS) header to 1 year, instructing browsers to strictly use HTTPS.
+  - `SECURE_HSTS_INCLUDE_SUBDOMAINS = True`: Applies HSTS to all subdomains.
+  - `SECURE_HSTS_PRELOAD = True`: Allows the site to be submitted to the HSTS preload list.
+- **Secure Cookies (Enhanced)**:
+  - `SESSION_COOKIE_SECURE = True`: Prevents session cookies from being transmitted over unencrypted connections.
+  - `CSRF_COOKIE_SECURE = True`: Prevents CSRF cookies from being transmitted over unencrypted connections.
+- **Secure Headers**:
+  - `X_FRAME_OPTIONS = 'DENY'`: Prevents clickjacking.
+  - `SECURE_CONTENT_TYPE_NOSNIFF = True`: Prevents MIME-sniffing.
+  - `SECURE_BROWSER_XSS_FILTER = True`: Enables XSS filtering in browsers.
+
+### Deployment Configuration
+
+For production deployment, ensure:
+
+1.  **SSL/TLS Certificates**: Obtain and configure valid SSL certificates (e.g., via Let's Encrypt).
+2.  **Web Server Config**: Configure Nginx or Apache to listen on port 443 and handle SSL termination.
+3.  **Environment Variables**: Set `SECRET_KEY`, `DEBUG=False`, and database credentials via environment variables.
+
 ### CSRF Protection
 
 - All forms use the `{% csrf_token %}` template tag to protect against Cross-Site Request Forgery (CSRF) attacks.

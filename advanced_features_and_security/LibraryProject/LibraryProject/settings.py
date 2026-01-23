@@ -10,11 +10,19 @@ ALLOWED_HOSTS = ['*'] # Set to specific hosts in production
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') # Required when behind a proxy or for testing with DEBUG=False and secure cookies
 
+# HTTPS Settings
+SECURE_SSL_REDIRECT = True # Redirect all non-HTTPS requests to HTTPS
+SECURE_HSTS_SECONDS = 31536000 # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True # Include subdomains in HSTS policy
+SECURE_HSTS_PRELOAD = True # Allow preloading of HSTS
+
+# Secure Cookies
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
+
 
 # Content Security Policy (CSP)
 CSP_DEFAULT_SRC = ("'self'",)
