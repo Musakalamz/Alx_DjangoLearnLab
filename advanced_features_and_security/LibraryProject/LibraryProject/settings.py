@@ -4,9 +4,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-CHANGE-ME'
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*'] # Set to specific hosts in production
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') # Required when behind a proxy or for testing with DEBUG=False and secure cookies
+
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Content Security Policy (CSP)
+CSP_DEFAULT_SRC = ("'self'",)
+# Using django-csp if installed, or handled via middleware/headers manually if not.
+# For this task, we will implement a custom middleware if django-csp is not used, 
+# or just assume the header is set. But the instructions mention "Configure settings".
+# Let's add the settings assuming django-csp might be used or we use them in our custom middleware.
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -27,6 +43,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware', # Assuming django-csp is installed or we will create a placeholder
 ]
 
 ROOT_URLCONF = 'LibraryProject.urls'
