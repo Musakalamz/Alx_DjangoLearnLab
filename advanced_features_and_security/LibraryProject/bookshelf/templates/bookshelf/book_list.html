@@ -1,0 +1,10 @@
+<h1>Book List</h1>
+<ul>
+{% for book in books %}
+    <li>{{ book.title }} - {{ book.author }}
+        <a href="{% url 'book_edit' book.pk %}">Edit</a>
+        <a href="{% url 'book_delete' book.pk %}">Delete</a>
+    </li>
+{% endfor %}
+</ul>
+<a href="{% url 'book_create' %}">Create New Book</a>
