@@ -27,6 +27,12 @@
                 {% endif %}
             </ul>
         </nav>
+        <div class="search-bar">
+            <form action="{% url 'search' %}" method="GET">
+                <input type="text" name="q" placeholder="Search posts..." value="{{ request.GET.q }}">
+                <button type="submit">Search</button>
+            </form>
+        </div>
     </header>
 
     {% if messages %}
