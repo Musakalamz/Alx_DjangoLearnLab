@@ -1,0 +1,23 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Profile - Django Blog{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>User Profile</h2>
+    <div class="profile-info">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+    </div>
+
+    <h3>Update Profile</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <p>
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" value="{{ user.email }}" required>
+        </p>
+        <button type="submit" class="btn">Update Email</button>
+    </form>
+</div>
+{% endblock %}
