@@ -1,0 +1,17 @@
+{% extends 'blog/base.html' %} {% block title %}Edit Comment - Django Blog{%
+endblock %} {% block content %}
+<div class="comment-form">
+  <h2>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Comment</h2>
+  <form method="POST">
+    {% csrf_token %} {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">
+      {% if form.instance.pk %}Update{% else %}Post{% endif %} Comment
+    </button>
+  </form>
+  {% if form.instance.pk %}
+  <p><a href="{% url 'post-detail' object.post.pk %}">Cancel</a></p>
+  {% else %}
+  <p><a href="{% url 'post-list' %}">Cancel</a></p>
+  {% endif %}
+</div>
+{% endblock %}
