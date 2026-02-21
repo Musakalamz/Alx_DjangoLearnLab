@@ -52,6 +52,7 @@ Installed apps in settings include:
 - rest_framework.authtoken
 - accounts
 - posts
+- notifications
 
 AUTH_USER_MODEL is set to accounts.User and REST_FRAMEWORK is configured to use token authentication by default.
 
@@ -138,6 +139,28 @@ Feed endpoint:
   - Returns paginated posts from users the authenticated user follows
   - Ordered by creation date (most recent first)
 
+Like endpoints:
+
+- POST /api/posts/{id}/like/
+  - Like the specified post
+  - Requires Authorization header with token
+
+- POST /api/posts/{id}/unlike/
+  - Unlike the specified post
+  - Requires Authorization header with token
+
+Notifications API Endpoints
+
+Base path for notifications:
+
+- /notifications/
+
+Notification endpoint:
+
+- GET /notifications/
+  - Returns notifications for the authenticated user
+  - Unread notifications are listed first
+
 Authentication Header
 
 Include the token in the Authorization header for protected endpoints:
@@ -189,3 +212,15 @@ Example curl requests:
 - Get feed:
 
   curl -X GET http://127.0.0.1:8000/api/feed/ -H "Authorization: Token your_token_here"
+
+- Like post:
+
+  curl -X POST http://127.0.0.1:8000/api/posts/1/like/ -H "Authorization: Token your_token_here"
+
+- Unlike post:
+
+  curl -X POST http://127.0.0.1:8000/api/posts/1/unlike/ -H "Authorization: Token your_token_here"
+
+- Get notifications:
+
+  curl -X GET http://127.0.0.1:8000/notifications/ -H "Authorization: Token your_token_here"

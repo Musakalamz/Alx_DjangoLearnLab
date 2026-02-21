@@ -1,9 +1,13 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework import filters, permissions, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Comment, Post
+from notifications.models import create_notification
+
+from .models import Comment, Like, Post
 from .permissions import IsAuthorOrReadOnly
 from .serializers import CommentSerializer, PostSerializer
 
@@ -39,7 +43,15 @@ class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = DefaultPagination
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        comment = serializer.save(author=self.request.user)
+        post = comment.post
+        if post.author != self.request.user:
+            create_notification(
+                recipient=post.author,
+                actor=self.request.user,
+                verb='commented on your post',
+                target=comment,
+            )
 
 
 class FeedView(APIView):
@@ -53,3 +65,50 @@ class FeedView(APIView):
         page = paginator.paginate_queryset(queryset, request, view=self)
         serializer = PostSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+
+class LikePostView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk, *args, **kwargs):
+        post = get_object_or_404(Post, pk=pk)
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        if not created:
+            return Response(
+                {'detail': 'You have already liked this post.'},
+                status=400,
+            )
+        if post.author != request.user:
+            create_notification(
+                recipient=post.author,
+                actor=request.user,
+                verb='liked your post',
+                target=post,
+            )
+        return Response(
+            {
+                'detail': 'Post liked.',
+                'likes_count': post.likes.count(),
+            },
+            status=200,
+        )
+
+
+class UnlikePostView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk, *args, **kwargs):
+        post = get_object_or_404(Post, pk=pk)
+        deleted, _ = Like.objects.filter(user=request.user, post=post).delete()
+        if deleted == 0:
+            return Response(
+                {'detail': 'You have not liked this post.'},
+                status=400,
+            )
+        return Response(
+            {
+                'detail': 'Post unliked.',
+                'likes_count': post.likes.count(),
+            },
+            status=200,
+        )

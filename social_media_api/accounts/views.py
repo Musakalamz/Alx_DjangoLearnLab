@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import User
+from .models import User, User as CustomUser
 from .serializers import (
     LoginSerializer,
     ProfileSerializer,
@@ -53,11 +53,12 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 
-class FollowUserView(APIView):
+class FollowUserView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    queryset = CustomUser.objects.all()
 
     def post(self, request, user_id, *args, **kwargs):
-        target = get_object_or_404(User, id=user_id)
+        target = get_object_or_404(CustomUser.objects.all(), id=user_id)
         if target == request.user:
             return Response(
                 {'detail': 'You cannot follow yourself.'},
@@ -73,11 +74,12 @@ class FollowUserView(APIView):
         )
 
 
-class UnfollowUserView(APIView):
+class UnfollowUserView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    queryset = CustomUser.objects.all()
 
     def post(self, request, user_id, *args, **kwargs):
-        target = get_object_or_404(User, id=user_id)
+        target = get_object_or_404(CustomUser.objects.all(), id=user_id)
         if target == request.user:
             return Response(
                 {'detail': 'You cannot unfollow yourself.'},
