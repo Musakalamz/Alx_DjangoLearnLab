@@ -8,6 +8,7 @@ Project Structure
 
 - social_media_api: Django project configuration
 - accounts: App that contains the custom user model and authentication endpoints
+- posts: App that contains post and comment models and API endpoints
 
 Requirements
 
@@ -38,7 +39,7 @@ Custom User Model
 The project uses a custom user model defined in the accounts app.
 
 - bio: Text field for user biography
-- profile_picture: URL to the user profile image
+- profile_picture: Image field stored under media/profile_pictures
 - followers: Many to many relationship to other users
 
 Authentication
@@ -50,10 +51,11 @@ Installed apps in settings include:
 - rest_framework
 - rest_framework.authtoken
 - accounts
+- posts
 
 AUTH_USER_MODEL is set to accounts.User and REST_FRAMEWORK is configured to use token authentication by default.
 
-API Endpoints
+Authentication API Endpoints
 
 Base path for authentication endpoints:
 
@@ -76,6 +78,49 @@ Available endpoints:
 - PUT or PATCH /accounts/profile/
   - Updates the authenticated user profile
   - Requires Authorization header with token
+
+Posts and Comments API Endpoints
+
+Base path for posts and comments endpoints:
+
+- /api/
+
+Post endpoints:
+
+- GET /api/posts/
+  - List posts with pagination
+  - Supports search by title or content using ?search= query parameter
+
+- POST /api/posts/
+  - Create a new post for the authenticated user
+  - Request body fields: title, content
+
+- GET /api/posts/{id}/
+  - Retrieve a single post with its comments
+
+- PUT or PATCH /api/posts/{id}/
+  - Update a post (only the author can update)
+
+- DELETE /api/posts/{id}/
+  - Delete a post (only the author can delete)
+
+Comment endpoints:
+
+- GET /api/comments/
+  - List comments with pagination
+
+- POST /api/comments/
+  - Create a new comment for a post
+  - Request body fields: post, content
+
+- GET /api/comments/{id}/
+  - Retrieve a single comment
+
+- PUT or PATCH /api/comments/{id}/
+  - Update a comment (only the author can update)
+
+- DELETE /api/comments/{id}/
+  - Delete a comment (only the author can delete)
 
 Authentication Header
 
@@ -100,3 +145,19 @@ Example curl requests:
 - Get profile:
 
   curl -X GET http://127.0.0.1:8000/accounts/profile/ -H "Authorization: Token your_token_here"
+
+- List posts:
+
+  curl -X GET http://127.0.0.1:8000/api/posts/
+
+- Search posts:
+
+  curl -X GET "http://127.0.0.1:8000/api/posts/?search=hello"
+
+- Create post:
+
+  curl -X POST http://127.0.0.1:8000/api/posts/ -H "Authorization: Token your_token_here" -H "Content-Type: application/json" -d "{\"title\": \"My first post\", \"content\": \"Post content\"}"
+
+- Create comment:
+
+  curl -X POST http://127.0.0.1:8000/api/comments/ -H "Authorization: Token your_token_here" -H "Content-Type: application/json" -d "{\"post\": 1, \"content\": \"Nice post\"}"
