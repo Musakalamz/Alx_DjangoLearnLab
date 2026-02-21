@@ -79,6 +79,16 @@ Available endpoints:
   - Updates the authenticated user profile
   - Requires Authorization header with token
 
+Follow management endpoints:
+
+- POST /accounts/follow/{user_id}/
+  - Follow the user with the given ID
+  - Requires Authorization header with token
+
+- POST /accounts/unfollow/{user_id}/
+  - Unfollow the user with the given ID
+  - Requires Authorization header with token
+
 Posts and Comments API Endpoints
 
 Base path for posts and comments endpoints:
@@ -122,6 +132,12 @@ Comment endpoints:
 - DELETE /api/comments/{id}/
   - Delete a comment (only the author can delete)
 
+Feed endpoint:
+
+- GET /api/feed/
+  - Returns paginated posts from users the authenticated user follows
+  - Ordered by creation date (most recent first)
+
 Authentication Header
 
 Include the token in the Authorization header for protected endpoints:
@@ -161,3 +177,15 @@ Example curl requests:
 - Create comment:
 
   curl -X POST http://127.0.0.1:8000/api/comments/ -H "Authorization: Token your_token_here" -H "Content-Type: application/json" -d "{\"post\": 1, \"content\": \"Nice post\"}"
+
+- Follow user:
+
+  curl -X POST http://127.0.0.1:8000/accounts/follow/2/ -H "Authorization: Token your_token_here"
+
+- Unfollow user:
+
+  curl -X POST http://127.0.0.1:8000/accounts/unfollow/2/ -H "Authorization: Token your_token_here"
+
+- Get feed:
+
+  curl -X GET http://127.0.0.1:8000/api/feed/ -H "Authorization: Token your_token_here"

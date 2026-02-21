@@ -1,5 +1,7 @@
 from rest_framework import filters, permissions, viewsets
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Comment, Post
 from .permissions import IsAuthorOrReadOnly
@@ -13,9 +15,7 @@ class DefaultPagination(PageNumberPagination):
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.select_related('author').prefetch_related(
-        'comments__author',
-    )
+    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly,
@@ -30,7 +30,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.select_related('post', 'author')
+    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly,
@@ -40,3 +40,16 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+class FeedView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        followed_users = user.following.all()
+        queryset = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+        paginator = DefaultPagination()
+        page = paginator.paginate_queryset(queryset, request, view=self)
+        serializer = PostSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
