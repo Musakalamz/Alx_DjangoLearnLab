@@ -1,11 +1,12 @@
+from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 
-from rest_framework import filters, permissions, viewsets
+from rest_framework import filters, generics, permissions, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from notifications.models import create_notification
+from notifications.models import Notification
 
 from .models import Comment, Like, Post
 from .permissions import IsAuthorOrReadOnly
@@ -46,11 +47,12 @@ class CommentViewSet(viewsets.ModelViewSet):
         comment = serializer.save(author=self.request.user)
         post = comment.post
         if post.author != self.request.user:
-            create_notification(
+            Notification.objects.create(
                 recipient=post.author,
                 actor=self.request.user,
                 verb='commented on your post',
-                target=comment,
+                content_type=ContentType.objects.get_for_model(comment),
+                object_id=comment.pk,
             )
 
 
@@ -59,8 +61,8 @@ class FeedView(APIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        followed_users = user.following.all()
-        queryset = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+        following_users = user.following.all()
+        queryset = Post.objects.filter(author__in=following_users).order_by('-created_at')
         paginator = DefaultPagination()
         page = paginator.paginate_queryset(queryset, request, view=self)
         serializer = PostSerializer(page, many=True)
@@ -71,7 +73,7 @@ class LikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk, *args, **kwargs):
-        post = get_object_or_404(Post, pk=pk)
+        post = generics.get_object_or_404(Post, pk=pk)
         like, created = Like.objects.get_or_create(user=request.user, post=post)
         if not created:
             return Response(
@@ -79,11 +81,12 @@ class LikePostView(APIView):
                 status=400,
             )
         if post.author != request.user:
-            create_notification(
+            Notification.objects.create(
                 recipient=post.author,
                 actor=request.user,
                 verb='liked your post',
-                target=post,
+                content_type=ContentType.objects.get_for_model(post),
+                object_id=post.pk,
             )
         return Response(
             {
