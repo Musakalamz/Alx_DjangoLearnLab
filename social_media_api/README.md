@@ -9,6 +9,7 @@ Project Structure
 - social_media_api: Django project configuration
 - accounts: App that contains the custom user model and authentication endpoints
 - posts: App that contains post and comment models and API endpoints
+- notifications: App that contains notification model, serializers, and API endpoint
 
 Requirements
 
@@ -224,3 +225,39 @@ Example curl requests:
 - Get notifications:
 
   curl -X GET http://127.0.0.1:8000/notifications/ -H "Authorization: Token your_token_here"
+
+Production Configuration and Deployment
+
+The project is configured for production-ready deployment:
+
+- DEBUG is set to False in settings.py for production safety.
+- ALLOWED_HOSTS is read from the DJANGO_ALLOWED_HOSTS environment variable (comma separated), defaulting to localhost and 127.0.0.1.
+- DATABASES can be configured via environment variables for a PostgreSQL database:
+  - DB_ENGINE (default: django.db.backends.postgresql)
+  - DB_NAME
+  - DB_USER
+  - DB_PASSWORD
+  - DB_HOST (default: localhost)
+  - DB_PORT (default: 5432)
+- If DB_NAME is not set, the project falls back to SQLite for local development.
+- Static files:
+  - STATIC_URL is set to /static/
+  - STATIC_ROOT is set to staticfiles/ for use with collectstatic
+- Media files:
+  - MEDIA_URL is set to /media/
+  - MEDIA_ROOT is set to media/
+- Optional AWS S3 storage:
+  - When AWS_STORAGE_BUCKET_NAME is provided, DEFAULT_FILE_STORAGE uses S3 via django-storages.
+  - Related AWS environment variables are read for credentials and region.
+- Security settings:
+  - SECURE_BROWSER_XSS_FILTER and SECURE_CONTENT_TYPE_NOSNIFF are enabled when DEBUG is False.
+  - X_FRAME_OPTIONS is set to DENY.
+  - SECURE_SSL_REDIRECT can be enabled via DJANGO_SECURE_SSL_REDIRECT.
+  - SESSION_COOKIE_SECURE and CSRF_COOKIE_SECURE are enabled when DEBUG is False.
+
+To deploy:
+
+1. Configure environment variables for SECRET_KEY, database, allowed hosts, and security options.
+2. Run migrations: python manage.py migrate
+3. Collect static files: python manage.py collectstatic --noinput
+4. Start the application using a WSGI server such as Gunicorn, and place a reverse proxy like Nginx in front if needed.
